@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Top 5 Users, Groups, and Regions</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            background-color: #f4f4f4;
+            text-align: center;
+        }
+
+        h2 {
+            margin-top: 20px;
+        }
+
+        .top-container {
+            display: flex;
+            justify-content: space-around;
+            margin: 30px;
+        }
+
+        .top-section {
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 20px;
+            width: 30%;
+            background-color: #fff;
+            margin: 10px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        li {
+            margin: 10px 0;
+        }
+
+        .date-container {
+            text-align: center;
+        }
+
+        .date-input {
+            margin: 10px;
+            padding: 5px;
+            font-size: 16px;
+        }
+        button {
+        cursor: pointer;
+        display: inline-block;
+        padding: 10px 20px;
+        font-size: 16px;
+        font-weight: bold;
+        text-align: center;
+        color: #000000; /* Button text color */
+        background-color: #fff; /* Button background color */
+    }
+    </style>
+</head>
+
+<body>
+    <a href="user">Back</a>
+    <div class="date-container">
+        <label for="startDate">Start Date:</label>
+        <input type="date" id="startDate" class="date-input">
+    
+        <label for="endDate">End Date:</label>
+        <input type="date" id="endDate" class="date-input">
+    </div>
+
+    <button id="btn">Find the data...</button>
+
+    <div class="top-container">
+        <div class="top-section" id="topUsers">
+            <h2>Top Users</h2>
+            <ul id="userList"></ul>
+        </div>
+
+        <div class="top-section" id="topGroups">
+            <h2>Top Groups</h2>
+            <ul id="groupList"></ul>
+        </div>
+
+        <div class="top-section" id="topRegions">
+            <h2>Top Regions</h2>
+            <ul id="regionList"></ul>
+        </div>
+    </div>
+
+    <script>
+        var users = [];
+        var groups = [];
+        var regions = [];
+
+        console.log(document.getElementById("startdate"), document.getElementById("enddate"));
+
+        const btn = document.getElementById("btn");
+        btn.addEventListener("click",function(){
+
+            document.getElementById('userList').innerHTML="";
+            document.getElementById('groupList').innerHTML="";
+            document.getElementById('regionList').innerHTML="";
+
+            if(document.getElementById('startDate').value=="" || document.getElementById('endDate').value==""){
+                alert("Please enter a valid date!");
+            }
+            else if(document.getElementById('startDate').value == document.getElementById('endDate').value){
+                alert("Atleast choose a one day gap!");
+            }
+            else{
+                        let startDate = new Date(document.getElementById('startDate').value);
+                let endDate = new Date(document.getElementById('endDate').value);
+                console.log(startDate, Date(endDate));
+                fetch("/gettopusers?sd=" + startDate + "&ed=" + endDate)
+                    .then(function (response) {
+                        return response.json();
+                    })
+                    .then(function (data) {
+                        var userList = document.getElementById('userList');
+                        displayTopItems(userList, data);
+                    })
+                    .catch(function (error) {
+                        console.log("Error getting top users");
+                    })
+
+                fetch("/gettopgroups?sd=" + startDate + "&ed=" + endDate)
+                    .then(function (response) {
+                        return response.json();
+                    })
+                    .then(function (data) {
+                        var groupList = document.getElementById('groupList');
+                        displayTopItems(groupList, data);
+
+                    })
+                    .catch(function (error) {
+                        console.log("Error getting top users");
+                    })
+
+
+
+                fetch("/gettopregions?sd=" + startDate + "&ed=" + endDate)
+                    .then(function (response) {
+                        return response.json();
+                    })
+                    .then(function (data) {
+                        var regionList = document.getElementById('regionList');
+                        displayTopItems(regionList, data);
+
+                    })
+                    .catch(function (error) {
+                        console.log("Error getting top users");
+                    })
+            }
+
+        })
+
+        
+        function displayTopItems(container, items) {
+            for (var i = 0; i < items.length; i++) {
+                var listItem = document.createElement('li');
+                listItem.textContent = items[i].name + ': ' + items[i].value;
+                container.appendChild(listItem);
+            }
+        }
+    </script>
+</body>
+
+</html>

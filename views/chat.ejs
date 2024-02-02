@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Chat App with Search</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            display: flex;
+            height: 100vh;
+        }
+
+        #chat-container {
+            display: flex;
+            width: 100%;
+            margin: auto;
+            height: 100%;
+            border: 1px solid #ccc;
+            overflow: hidden;
+            background-color: #f6f3f3;
+        }
+
+        #groups {
+            flex: 1;
+            border-right: 1px solid #ccc;
+            overflow-y: auto;
+            background-color: #fff;
+            padding: 10px;
+        }
+
+        #groups ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #groups li {
+            padding: 10px;
+            cursor: pointer;
+            margin-bottom: 5px;
+            border-radius: 5px;
+        }
+
+        #groups li:hover {
+            background-color: #ddd;
+        }
+
+        #chat-panel {
+            flex: 3;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #search-input {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            border-bottom: 1px solid #ccc;
+            background-color: #fff;
+        }
+
+        #messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background-color :#f6f3f3;
+        }
+
+        #message-input {
+            display: none;
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            border-top: 1px solid #ccc;
+            background-color: #fff;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            overflow: hidden;
+            word-wrap: none;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message .user {
+            max-width: 300px;
+            /* border-radius: 5px; */
+            padding: 10px;
+            max-width: 70%;
+            word-wrap: break-word;
+            margin-left: auto;
+            background-color: #2f6b31;
+            color: #f0eded;
+            align-self: flex-end;
+        }
+
+        .message .incoming {
+            max-width: 300px;
+            /* border-radius: 5px; */
+            padding: 10px;
+            max-width: 70%;
+            word-wrap: break-word;
+            background-color: #76c6f5;
+            align-self: flex-start;
+        }
+
+        .timestampl {
+            font-size: 12px;
+            color: #888;
+            align-self: flex-end;
+            margin-top: 5px;
+            align-self: flex-start;
+        }
+        .timestampr {
+            font-size: 12px;
+            color: #888;
+            align-self: flex-end;
+            margin-top: 5px;
+            align-self: flex-end;
+        }
+        .makeitinvisible{
+            display: none;
+        }
+        #newperson{
+            display: none;
+            width: 90%;
+            height: 40px;
+            font-family: Arial, sans-serif;
+            font-weight: bold;
+            text-align: center;
+            line-height: 40px;
+            cursor: pointer;
+            background-color: #969696;
+        }
+        #showingname{
+            display: none;
+            font-size: large;
+            width: 90%;
+            height: 40px;
+            font-family: Arial, sans-serif;
+            font-weight: bold;
+            text-align: center;
+            line-height: 40px;
+            cursor: pointer;
+            background-color: #616161;
+        }
+        #popup-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        #popup {
+            background-color: #e4dfdf;
+            padding: 20px;
+            width:60%;
+            height: 100%;
+            /* border-radius: 10px; */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        #close-popup {
+            background-color: #e74c3c;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            /* border-radius: 5px; */
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        #close-popupp {
+            background-color: #148933;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            /* border-radius: 5px; */
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .sendbutton{
+            margin-left : 10px;
+        }
+        .cancelbutton{
+            margin-left : 10px;
+        }
+
+        #members-popup-container {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+        z-index: 2; 
+    }
+    #members-popup {
+        background-color: #fff;
+        padding: 20px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+        #members-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    #members-list li {
+        font-size: large;
+        margin: 10px 0;
+        display: flex;
+        justify-content:space-around;
+        align-items: center;
+    }
+
+    #members-list button {
+        padding: 8px;
+        margin-left: 10px;
+        border: none;
+        /* border-radius: 5px; */
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    #members-list button:hover {
+        background-color: #e4dfdf;
+    }
+
+    #close-members-popup {
+        background-color: #3498db;
+        color: #fff;
+        border: none;
+        padding: 10px;
+        /* border-radius: 5px; */
+        cursor: pointer;
+        margin-top: 10px;
+    }
+    </style>
+</head>
+
+<body>
+    <a href="user">Back</a>
+    <div id="chat-container">
+        <div id="groups">
+            <input type="text" id="search-input" placeholder="Search messages..." onkeyup="searchMessages()">
+            <ul id="group-list">
+            </ul>
+        </div>
+        <div id="chat-panel">
+            <div style="display: flex;">
+                <div style="width: 50%;" id="newperson" onclick="addnewperson()">ADD NEW PERSON</div>
+                <div style="width: 50%;" id="showingname" onclick="showallmembers()">(--groupname--)</div>
+            </div>
+            <div id="messages"></div>
+            <input type="text" id="message-input" placeholder="Type your message..." onkeyup="sendMessage(event)" >
+        </div>
+    </div>
+
+        <div id="popup-container">
+            <div id="popup">
+
+                <label for="user-search" id="user-search-label" style="display:none;">Search Users: </label>
+                <input type="search" id="user-search" placeholder="Type email of user..." style=" align-self: center;" onkeydown="getnewuser(event)">
+                <ul id="user-list">
+                    
+                </ul>
+                <button id="close-popup" onclick="closeCreateGroupPopup()">Close</button>
+            </div>
+        </div>
+
+        <div id="members-popup-container">
+            <div id="members-popup">
+                <h2>All members of this group are:</h2>
+                <ul id="members-list">
+                </ul>
+                <button id="close-members-popup" onclick="closeMembersRequestPopup()">Close</button>
+            </div>
+        </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        let track;
+    
+        fetch("/getgroups")
+        .then(function(response){
+            if (response.status == 200)
+                return response.json();
+        })
+        .then(function(data){
+            // console.log(new Date(), Date.now());
+            
+            var groupList = document.getElementById("group-list");
+            groupList.innerHTML = "";
+
+            data.forEach(function (item) {
+                var listItem = document.createElement("li");
+                listItem.setAttribute("id",item.groupid);
+                listItem.setAttribute("value",item.groupname);
+                
+                listItem.onclick = function()
+                {
+                    // console.log(listItem.getAttribute("value")); 
+                    // console.log("jjhffgfhgfggfdgfdfdfdgfdg");
+                    document.getElementById("newperson").style.display="block";
+                    document.getElementById("showingname").style.display = "block";
+                    document.getElementById("message-input").style.display = "block";
+                    document.getElementById("showingname").innerHTML= listItem.getAttribute("value");
+                    loadGroup(this.id,0);
+                    socket.emit("joingroup",`${this.id}`);
+                    track = this.id;
+                };
+                listItem.textContent = item.groupname   ;
+                groupList.appendChild(listItem);
+            });
+        })
+        .catch(function(error){
+            console.log(error);
+        })
+
+        let allMessages = [],lim=0,uname,uid;
+
+        fetch("/getuser")
+        .then(function(data){
+            return  data.json();
+        })
+        .then(function(data){
+            uname =  data[0].username;
+            uid = data[0].id;
+        })
+        .catch(function(error){
+            console.log(error);
+        })
+
+        function loadGroup(groupid,i) {
+            document.getElementById('messages').innerHTML = "";
+            const messages = [];
+            if(i!=0)
+                lim+=10;
+            else{
+                lim=0;
+                allMessages = [];
+            }
+            fetch("/getmessagesforgroup?gid=" + groupid +"&lim=" +lim)
+            .then((res)=>{return res.json()})
+            .then((data)=>{
+
+                // if(data.length==0)HasMore=0;
+
+                data.push(...allMessages)
+                // allMessages.push(...data);
+                allMessages=data;
+                displayMessages(allMessages);
+                })
+            .catch(function(erro){
+                console.log(erro);
+            })
+        }
+
+        function sendMessage(event) {
+            if (event.key === 'Enter') {
+                const message = document.getElementById('message-input').value.trim();
+                if (message !== '') {
+                    let obj = { message: message, groupid: `${Number(track)}`, timestamp: Date.now(), messageid: Date.now(), username : uname, userid : uid };
+                    socket.emit('chatmessage', obj);
+                    const userMessage = { type: 'user', message: message, timestamp: new Date() };
+                    // fetch("/savemessage",{
+                    //     method: "POST",
+                    //     headers: { "Content-Type": "application/json" },
+                    //     body: JSON.stringify(obj),
+                    // })
+                    // .then(function(data){
+                    //     console.log(data);
+                    // })
+                    // .catch(function(error){
+                    //     console.log(error);
+                    // })
+                    allMessages.push(userMessage);
+                    displayMessages(allMessages);
+                }
+                document.getElementById("message-input").value="";
+            }
+        }
+
+        function searchMessages() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const filteredMessages = allMessages.filter(message => message.message.toLowerCase().includes(searchTerm));
+            displayMessages(filteredMessages);
+        }
+
+        function displayMessages(messages) {
+            const messagesContainer = document.getElementById('messages');
+            messagesContainer.innerHTML = '';
+
+            messages.forEach(message => {
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('message');
+                const messageTypeClass = message.type === 'user' ? 'user' : 'incoming';
+                messageDiv.innerHTML = `<div class="${messageTypeClass == "incoming" ? "timestampl" : "makeitinvisible"}">${message.username}</div><div class="${messageTypeClass}">${message.message}</div><div class="${messageTypeClass=="incoming" ? "timestampl" : "timestampr"}">${formatTimestamp(message.timestamp) }</div>`;
+                messagesContainer.appendChild(messageDiv);
+            });
+
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function formatTimestamp(timestamp) {
+            const options = { hour: 'numeric', minute: 'numeric', month: 'short', day: 'numeric' };
+            return new Intl.DateTimeFormat('en-US', options).format(timestamp);
+        }
+
+        function addnewperson(){
+            document.getElementById('popup-container').style.display = 'flex';
+        }
+
+        function closeCreateGroupPopup(){
+            document.getElementById('popup-container').style.display='none';
+            const userList = document.getElementById("user-list").innerHTML = "";
+        }
+
+        function getnewuser(e){
+            if(e.key=="Enter"){
+                const searchTerm = document.getElementById('user-search').value.trim();
+                if(searchTerm.length==0){
+                    alert("Please enter a valid username");
+                    return false;
+                }
+                document.getElementById('user-search').value="";
+                const userList = document.getElementById("user-list").innerHTML="";
+                // console.log(searchTerm, track );
+
+                fetch("/getnewuser?val=" + searchTerm +"&gid=" + track)
+                .then(function(response){
+                    return response.json();
+                })
+                .then(function(data){
+                    console.log(data);
+
+                    if(data.length==0){
+                        let li = document.createElement("li");
+                        li.innerHTML = "No user find";
+                        const userList = document.getElementById("user-list");
+                        userList.appendChild(li);
+                        return false;
+                    }
+
+                    const userList =  document.getElementById("user-list");
+                    data.forEach((item)=>{
+                        let li=document.createElement("li");
+                        li.setAttribute("id",item.id);
+                        li.innerHTML=item.username + " and " + item.email;
+
+                        var sendButton = document.createElement("button");
+                        sendButton.className = "sendbutton"
+                        sendButton.textContent = "Send";
+                        sendButton.addEventListener("click", function () {
+                            sendInvitation(li.getAttribute("id"),track);
+                            // console.log(li.getAttribute("id"),track);
+                            li.remove();
+                        });
+                        
+                        var cancelButton = document.createElement("button");
+                        cancelButton.className = "cancelbutton"
+                        cancelButton.textContent = "Cancel";
+                        cancelButton.addEventListener("click", function () {
+                            // cancInvitation(item.groupid);
+                            li.remove();
+                        });
+                        
+                        li.appendChild(sendButton);
+                        li.appendChild(cancelButton);
+
+                        userList.appendChild(li);
+                        });
+                })
+                .catch(function(error){
+                    console.log(error);
+                })
+            }
+            // const filteredMessages = allMessages.filter(message => message.message.toLowerCase().includes(searchTerm));
+        }
+
+        function sendInvitation(userid,groupid){
+            fetch("/sendnewrequest?uid=" + userid + "&gid=" + groupid)
+            .then(function(response){
+                console.log(response);
+            })
+            .catch(function(error){
+                console.log(error);
+            })
+        }
+        // let messages = document.getElementById("messages")
+        // messages.addEventListener("onscroll",checkScroll());
+        //  function checkScroll(e) {
+        //     let messages = document.getElementById("messages")
+        //         // console.log("Hiiiiiiiiiiiiiiiiiiiiiiiiii");
+        //         // var messages = document.getElementById("messages");
+        //         // var scrollTop = messages.scrollTop;
+        //         // var threshold = 400;
+
+        //         // if (scrollTop > threshold) {
+        //         //     loadGroup(track);
+        //         //     messages.scrollTop = scrollTop;
+        //         // }
+                    
+        //     let a = messages.scrollHeight, b = messages.clientHeight;
+
+        //     if ((-(((messages.scrollTop).toFixed())) === (a - b)) && HasMore) {
+        //         loadGroup(track);        
+        //     }
+        //     messages.scrollTo({
+        //          top: -((a - b).toFixed()),
+        //          behaviour: "smooth"
+        //      })
+        // }
+
+        function showallmembers(){
+            // console.log(".....");
+            fetch("/showallmembers?gid=" + track)
+            .then(function(response){
+                return response.json();
+            })
+            .then(function(result){
+                console.log(result);
+                document.getElementById("members-popup-container").style.display = "block";
+                
+                let list = document.getElementById("members-list");
+                result.forEach((data)=>{
+                    let li = document.createElement("li");
+                    li.innerHTML = data.username;
+                    list.appendChild(li);
+                })
+
+            }).catch((err) => {
+                console.log(err);
+            });
+        }
+
+        function closeMembersRequestPopup(){
+            document.getElementById('members-popup-container').style.display='none';
+            document.getElementById('members-list').innerHTML = '';
+        }
+        socket.on('msgfromserver', (obj) => {
+                console.log(obj);
+                const userMessage = { type: 'incoming', message: obj.message, timestamp: obj.timestamp , username : obj.username};
+                allMessages.push(userMessage);
+                displayMessages(allMessages);
+            });
+    </script>
+</body>
+
+</html>

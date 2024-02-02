@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Chat App with Search</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            display: flex;
+            height: 100vh;
+        }
+
+        #chat-container {
+            display: flex;
+            width: 100%;
+            margin: auto;
+            height: 100%;
+            border: 1px solid #ccc;
+            overflow: hidden;
+            background-color: #f4f4f4;
+        }
+
+        #groups {
+            flex: 1;
+            border-right: 1px solid #ccc;
+            overflow-y: auto;
+            background-color: #fff;
+            padding: 10px;
+        }
+
+        #groups ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #groups li {
+            padding: 10px;
+            cursor: pointer;
+            margin-bottom: 5px;
+            border-radius: 5px;
+        }
+
+        #groups li:hover {
+            background-color: #ddd;
+        }
+
+        #chat-panel {
+            flex: 3;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #search-input {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            border-bottom: 1px solid #ccc;
+            background-color: #fff;
+        }
+
+        #messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background-color: #f9f9f9;
+        }
+
+        #message-input {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            border-top: 1px solid #ccc;
+            background-color: #fff;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .message .user {
+            border-radius: 5px;
+            padding: 10px;
+            max-width: 70%;
+            word-wrap: break-word;
+            margin-left: auto;
+            background-color: #4CAF50;
+            color: #fff;
+        }
+
+        .message .incoming {
+            border-radius: 5px;
+            padding: 10px;
+            max-width: 70%;
+            word-wrap: break-word;
+            background-color: #ddd;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="chat-container">
+        <div id="groups">
+            <input type="text" id="search-input" placeholder="Search messages..." onkeyup="searchMessages()">
+            <ul id="group-list">
+                <li onclick="loadGroup('Group 1')">Group 1</li>
+                <li onclick="loadGroup('Group 2')">Group 2</li>
+                <!-- Add more groups as needed -->
+            </ul>
+        </div>
+        <div id="chat-panel">
+            <div id="messages"></div>
+            <input type="text" id="message-input" placeholder="Type your message..." onkeyup="sendMessage(event)">
+        </div>
+    </div>
+
+    <script>
+        let allMessages = [];
+
+        function loadGroup(groupName) {
+            // Replace this function with code to load messages for the selected group
+            // You may use AJAX or fetch to get messages from the server
+            // Update the #messages div with the loaded messages
+
+            // For demonstration purposes, showing a sample conversation
+            const messages = [
+                { type: 'user', content: 'Hello, how are you?' },
+                { type: 'incoming', content: 'Hi there! I am good, thanks.' },
+                { type: 'user', content: 'Great to hear!' }
+            ];
+
+            allMessages = messages;
+            displayMessages(allMessages);
+        }
+
+        function sendMessage(event) {
+            if (event.key === 'Enter') {
+                const message = document.getElementById('message-input').value.trim();
+                if (message !== '') {
+                    const userMessage = { type: 'user', content: message };
+                    allMessages.push(userMessage);
+                    displayMessages(allMessages);
+
+                    // Replace this function with code to send the message to the server
+                    // You may use AJAX or fetch to send the message
+                    // After sending, update the #messages div with the sent message
+                }
+            }
+        }
+
+        function searchMessages() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const filteredMessages = allMessages.filter(message => message.content.toLowerCase().includes(searchTerm));
+            displayMessages(filteredMessages);
+        }
+
+        function displayMessages(messages) {
+            const messagesContainer = document.getElementById('messages');
+            messagesContainer.innerHTML = '';
+
+            messages.forEach(message => {
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('message');
+                messageDiv.innerHTML = `<div class="${message.type}">${message.content}</div>`;
+                messagesContainer.appendChild(messageDiv);
+            });
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        loadGroup('Group 1');
+    </script>
+</body>
+
+</html>

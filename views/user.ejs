@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        #dashboard {
+            background-color: #fff;
+            padding: 20px;
+            /* border-radius: 10px; */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        #username {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        #options {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .option {
+            padding: 10px;
+            margin: 5px 0;
+            background-color: #3498db;
+            color: #fff;
+            text-decoration: none;
+            /* border-radius: 5px; */
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        /* .option:hover {
+            background-color: #2980b9;
+        } */
+
+        #popup-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        #popup {
+            background-color: #e4dfdf;
+            padding: 20px;
+            /* border-radius: 10px; */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        #user-list {
+            text-align: left;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        #close-popup {
+            background-color: #e74c3c;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            /* border-radius: 5px; */
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        #close-popupp {
+            background-color: #0fa336;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            /* border-radius: 5px; */
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        #invitation-popup-container {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+        z-index: 2; 
+    }
+
+    #invitation-popup {
+        background-color: #fff;
+        padding: 20px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+
+    #invitation-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    #invitation-list li {
+        margin: 10px 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    #invitation-list button {
+        padding: 8px;
+        margin-left: 10px;
+        border: none;
+        /* border-radius: 5px; */
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    #invitation-list button:hover {
+        background-color: #e4dfdf;
+    }
+
+    #close-invitation-popup {
+        background-color: #3498db;
+        color: #fff;
+        border: none;
+        padding: 10px;
+        /* border-radius: 5px; */
+        cursor: pointer;
+        margin-top: 10px;
+    }
+    </style>
+</head>
+
+<body>
+    <div id="dashboard">
+        <div id="username">
+            <%= username %>
+        </div>
+        <div id="options">
+            <a class="option" onclick="openCreateGroupPopup()">Create a New Group</a>
+            <a class="option" onclick="openInvitationRequestPopup()">Invitation Request</a>
+            <a class="option" onclick="openChat()">Open Chat</a>
+            <a class="option" onclick="openDashboard()">Dashboard</a>
+            <a href="logout" class="option">Logout</a>
+        </div>
+    </div>
+
+    <div id="popup-container">
+        <div id="popup">
+            <h2>Create a New Group</h2>
+            <label for="group-name">Group Name:</label>
+            <input type="text" id="group-name">
+            <br><br>
+
+            <label for="user-list" id="user-list-label" style="display: none;">Select Users:</label>
+            <select id="user-list" multiple style="display: none;">
+            </select>
+
+            <p style="font-size: large; cursor: pointer;" onclick="users()" id="text">Click to add user..</p>
+            <!-- <label for="user-search" id="user-search-label" style="display:none;">Search Users: </label> -->
+            <!-- <input type="search" id="user-search" placeholder="Type to search users..." style="display:none; align-self: center;"> -->
+            <!-- onkeyup="filterUsers()" -->
+            <!-- <p id="user-search-tag" onclick="shows earch()" >Add by search</p> -->
+            <!-- <p id="user-list-tag" onclick="hidesearch()" style="display:none;">Add by list</p> -->
+
+            <button id="close-popupp" onclick="closeCreateGroupPopupp()">Create</button>
+            <button id="close-popup" onclick="closeCreateGroupPopup()">Close</button>
+        </div>
+    </div>
+
+    <div id="invitation-popup-container">
+        <div id="invitation-popup">
+            <h2>Invitation Requests</h2>
+            <ul id="invitation-list">
+            </ul>
+            <button id="close-invitation-popup" onclick="closeInvitationRequestPopup()">Close</button>
+        </div>
+    </div>
+
+    <script>
+        function users(){
+            document.getElementById("user-list").style.display = "block";
+            document.getElementById("user-list-label").style.display = "block";
+            document.getElementById("text").style.display = "none";
+        }
+        // localStorage.setItem("user", JSON.stringify({ "username": username, "userid": userid }));
+        function openCreateGroupPopup() {
+            document.getElementById('popup-container').style.display = 'flex';
+
+            fetch("/allusers")
+                .then(function (response) {
+                    if (response.status == 200)
+                        return response.json();
+                })
+                .then(function (data) {
+                    var select = document.getElementById("user-list");
+                    data.forEach(function (item) {
+                        var option = document.createElement("option");
+                        option.value = item.username;
+                        textnode = document.createTextNode(item.username);
+                        option.setAttribute("id", item.id);
+                        option.appendChild(textnode);
+                        select.appendChild(option);
+                    });
+                })
+                .catch(function (error) {
+                    alert(error);
+                }); 
+
+        }
+
+        function closeCreateGroupPopup() {
+            document.getElementById('popup-container').style.display = 'none';
+        }
+
+        function closeCreateGroupPopupp() {
+            document.getElementById('popup-container').style.display = 'none';
+
+            let groupname = document.getElementById("group-name").value;
+            let userlist = document.getElementById("user-list");
+
+            if(groupname.length==0){
+                alert("Please enter a name for the new group.");
+                return false;
+            }
+
+            let Array = [];
+            for (const option of userlist.options) {
+                if (option.selected) {
+                    console.log(option.value, option.getAttribute("id"));
+                    let obj = {value : option.value, id : option.getAttribute("id")}
+                    Array.push(obj);
+                }
+            }
+
+            fetch("/creategroup",{
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ groupname : groupname, Array : Array}),
+            })
+            .then(function (response) {
+                    if (response.status == 200)
+                        console.log("Success");;
+            })
+            .catch(function (error) {
+                alert(error);
+            });
+        }
+
+        function showsearch() {
+            document.getElementById('user-list').style.display = 'none';
+            document.getElementById('user-list-label').style.display = 'none';
+            document.getElementById('user-list-tag').style.display = 'flex';
+            document.getElementById('user-search').style.display = 'flex';
+            document.getElementById('user-search-label').style.display = 'flex';
+            document.getElementById('user-search-tag').style.display = 'none';
+        }
+        function hidesearch() {
+            document.getElementById('user-list').style.display = 'flex';
+            document.getElementById('user-list-label').style.display = 'flex';
+            document.getElementById('user-list-tag').style.display = 'none';
+            document.getElementById('user-search').style.display = 'none';
+            document.getElementById('user-search-label').style.display = 'none';
+            document.getElementById('user-search-tag').style.display = 'flex';
+        }
+
+        function openInvitationRequestPopup() {
+                document.getElementById('invitation-popup-container').style.display = 'flex';
+
+                fetch("/invitationrequests")
+                    .then(function (response) {
+                        if (response.status == 200)
+                            return response.json();
+                    })
+                    .then(function (data) {
+                        console.log(data);
+                        var invitationList = document.getElementById("invitation-list");
+                        invitationList.innerHTML = "";   
+                        
+                        if(data.length==0){
+                            var emptyMessage = document.createElement("p");
+                            emptyMessage.appendChild(document.createTextNode("No Invitations Yet"));
+                            emptyMessage.setAttribute("class", "empty-message");
+                            invitationList.appendChild(emptyMessage);
+                        }
+
+                        data.forEach(function (item) {
+                            var listItem = document.createElement("li");
+                            listItem.textContent = item.groupname + " wants you to join..";
+
+                            var acceptButton = document.createElement("button");
+                            acceptButton.textContent = "Accept";
+                            acceptButton.addEventListener("click", function () {
+                                acceptInvitation(item.groupid); 
+                                listItem.remove();
+                            });
+                            
+                            var deleteButton = document.createElement("button");
+                            deleteButton.textContent = "Delete";
+                            deleteButton.addEventListener("click", function () {
+                                deleteInvitation(item.groupid); 
+                                listItem.remove();
+                            });
+                            
+                            listItem.appendChild(acceptButton);
+                            listItem.appendChild(deleteButton);
+
+                            invitationList.appendChild(listItem);
+                        });
+                    })
+                    .catch(function (error) {
+                        alert(error);
+                    });
+            }
+
+            function closeInvitationRequestPopup() {
+                document.getElementById('invitation-popup-container').style.display = 'none';
+            }
+
+            function acceptInvitation(groupid) {
+               fetch("/acceptinvitation", {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ groupid: groupid}),
+                })
+                    .then(function (response) {
+                        if (response.status == 200)
+                            console.log("Success");;
+                    })
+                    .catch(function (error) {
+                        alert(error);
+                    });
+
+                // console.log("Accepted invitation with ID: " + groupid);
+            }
+
+            function deleteInvitation(groupid) {
+                fetch("/deleteinvitation", {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ groupid: groupid }),
+                })
+                    .then(function (response) {
+                        if (response.status == 200)
+                            console.log("Success");;
+                    })
+                    .catch(function (error) {
+                        alert(error);
+                    });
+                // console.log("Deleted invitation with ID: " + invitationId);
+            }
+
+            function openChat(){
+                fetch("/openchat")
+                .then(function(res){
+                    // console.log(res);
+                    window.location.href=res.url;
+                })
+                .catch(function(error){
+                    console.log(error);
+                })
+            }
+
+            function openDashboard() {
+                    fetch("/opendashboard")
+                        .then(function (res) {
+                            // console.log(res);
+                            window.location.href = res.url;
+                        })
+                        .catch(function (error) {
+                            console.log(error);
+                        })
+                }
+    </script>
+</body>
+
+</html>
